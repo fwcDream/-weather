@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/jquery.min.js"></script>
+
+    <script src="js/moment.js"></script>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    :root {
+        --primary-color: #ff434f;
+        --secondary-color: #e3e3e3;
+        --text-color-lightest: #e7e9ec;
+        --text-color-darker: #2e2e2e;
+        --text-color-dark: #494949;
+        --text-color-gray: #8b8b8b;
+        --text-color-dark-gray: #727272;
+        --text-color-light-gray: #c6c6c6;
+        --backdrop-color: rgba(42, 42, 42, 0.69);
+    }
+    header{
+        width: 100%;
+        height: 50px;
+        background-color:#8c8c8c;
+        padding-top:10px;
+
+    }
+    .input1{
+        width: 100px;
+        height: 40px;
+        text-align:center;
+        vertical-align:middle;
+        margin-left: 35%;
+    }
+    .btn1 {
+        padding: 14px 12px;
+        background-color: var(--primary-color);
+        border: 0;
+        border-radius: 4px;
+        color: var(--text-color-lightest);
+        font-size: 16px;
+        cursor: pointer;
+        outline: none;
+    }
+    .show_weather{
+        display: none;
+        margin-left: 25%;
+
+    }
+    .everyday_weather{
+        width: 200px;
+        background-color:#46b8da;
+        display: inline-block;
+    }
+    .everyday_item{
+
+        text-align: center;
+    }
+
+    .weatherImg{
+        overflow: hidden;
+        width: 200px;
+
+    }
+</style>
+<body>
+<header >
+    <input id="Text1" type="text" class="input1"/>
+    <input id="Button1" type="button" value="查询" class="btn1"/>
+
+
+
+</header>
+<div class="show_weather">
+    <div class="everyday_weather">
+        <div class="everyday_item">
+            <!--<p class="everyday_title">今天</p>-->
+            <!--<p class="everyday_city"></p>-->
+            <!--<img src="image/WeatherIcon-master/weather-icon-S1/color-256/100.png" class="weatherImg"/>-->
+            <!--<p>实况温度:</p>-->
+            <!--<span class="temp"></span>-->
+            <!--&lt;!&ndash;天气状况描述&ndash;&gt;-->
+            <!--<span class="cond_text"></span>-->
+
+            <!--<p>体感温度:</p>-->
+            <!--<span class="fl"></span>-->
+        </div>
+    </div>
+
+
+    <div class="everyday_weather">
+        <div class="everyday_item">
+            <!--<p class="everyday_title">今天</p>-->
+            <!--<p class="everyday_city"></p>-->
+            <!--<img src="image/WeatherIcon-master/weather-icon-S1/color-256/100.png" class="weatherImg"/>-->
+            <!--<p>实况温度:</p>-->
+            <!--<span class="temp"></span>-->
+            <!--&lt;!&ndash;天气状况描述&ndash;&gt;-->
+            <!--<span class="cond_text"></span>-->
+
+            <!--<p>体感温度:</p>-->
+            <!--<span class="fl"></span>-->
+        </div>
+
+
+    </div>
+
+    <div class="everyday_weather">
+        <div class="everyday_item">
+            <!--<p class="everyday_title">今天</p>-->
+            <!--<p class="everyday_city"></p>-->
+            <!--<img src="image/WeatherIcon-master/weather-icon-S1/color-256/100.png" class="weatherImg"/>-->
+            <!--<p>实况温度:</p>-->
+            <!--<span class="temp"></span>-->
+            <!--<span class="cond_text"></span>-->
+            <!--<p>体感温度:</p>-->
+            <!--<span class="fl"></span>-->
+        </div>
+
+
+
+    </div>
+
+</div>
+
+<script>
+    $(function($) {
+        var sss;
+        var cityid;
+
+        var cityName;
+
+        $("#Text1").blur(function(event) {
+            sss = $(this).val();
+            $.ajax({
+                url:"https://geoapi.qweather.com/v2/city/lookup?location="+sss+"&key=edd35f95a15d4b08b93580872d60cda0",
+                method:"get",
+                success:function (res) {
+                    var cityId = res.location[0].id;
+                    var cityname = res.location[0].name;
+                    //获取城市的ID
+                    cityid = cityId;
+                    //获取城市的名字
+                    cityName=cityname;
+
+                }
+            })
+
+        });
+
+        $("#Button1").click(function () {
+            $(".show_weather").stop().fadeIn();
+            getForecastWeather("https://devapi.qweather.com/v7/weather/3d?location="+cityid+"&key=edd35f95a15d4b08b93580872d60cda0");
+        });
+
+
+        //获取未来三天的天气
+        function getForecastWeather(url) {
+            //发送ajax请求
+            $.ajax({
+                url:url,
+                method:"get",
+                success:function (res) {
+
+                    var daily = res.daily;
+                    $(".everyday_item").each(function (i) {
+                            //天气状况
+                            var textDay = daily[i].textDay;
+                            //天气图片
+                            var iconDay = daily[i].iconDay;
+                        //实况最大温度
+                            var tempMax = daily[i].tempMax;
+                            //获取日期
+                            var date = daily[i].fxDate;
+                            var week = moment(date).format("dddd");
+
+                        $(this).empty();
+                        $(this).append(" <p class=\"everyday_title\">"+getDay(i)+week+"</p>\n" +
+                            "            <p class=\"everyday_city\">"+cityName+"</p>\n" +
+                            "            <img src=\"image/"+iconDay+".png\" class=\"weatherImg\"/>\n" +
+                            "            <p>最高气温:</p>\n" +
+                            "            <span class=\"temp\">"+tempMax+"℃"+"</span>\n" +
+                            "            <span class=\"cond_text\">"+textDay+"</span>\n")
+
+                    })
+                },error:function (err) {
+                    console.log(err);
+                }
+            })
+        }
+
+        $(".show_weather").mouseleave(function () {
+            $(".show_weather").stop().fadeOut();
+        })
+
+        //设置全局为中文
+        moment.locale('zh-cn', {
+            months: '一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),
+            monthsShort: '1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),
+            weekdays: '星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'),
+            weekdaysShort: '周日_周一_周二_周三_周四_周五_周六'.split('_'),
+            weekdaysMin: '日_一_二_三_四_五_六'.split('_'),
+            longDateFormat: {
+                LT: 'HH:mm',
+                LTS: 'HH:mm:ss',
+                L: 'YYYY-MM-DD',
+                LL: 'YYYY年MM月DD日',
+                LLL: 'YYYY年MM月DD日Ah点mm分',
+                LLLL: 'YYYY年MM月DD日ddddAh点mm分',
+                l: 'YYYY-M-D',
+                ll: 'YYYY年M月D日',
+                lll: 'YYYY年M月D日 HH:mm',
+                llll: 'YYYY年M月D日dddd HH:mm'
+            },
+            meridiemParse: /凌晨|早上|上午|中午|下午|晚上/,
+            meridiemHour: function (hour, meridiem) {
+                if (hour === 12) {
+                    hour = 0;
+                }
+                if (meridiem === '凌晨' || meridiem === '早上' ||
+                    meridiem === '上午') {
+                    return hour;
+                } else if (meridiem === '下午' || meridiem === '晚上') {
+                    return hour + 12;
+                } else {
+                    // '中午'
+                    return hour >= 11 ? hour : hour + 12;
+                }
+            },
+            meridiem: function (hour, minute, isLower) {
+                const hm = hour * 100 + minute;
+                if (hm < 600) {
+                    return '凌晨';
+                } else if (hm < 900) {
+                    return '早上';
+                } else if (hm < 1130) {
+                    return '上午';
+                } else if (hm < 1230) {
+                    return '中午';
+                } else if (hm < 1800) {
+                    return '下午';
+                } else {
+                    return '晚上';
+                }
+            },
+            calendar: {
+                sameDay: '[今天]LT',
+                nextDay: '[明天]LT',
+                nextWeek: '[下]ddddLT',
+                lastDay: '[昨天]LT',
+                lastWeek: '[上]ddddLT',
+                sameElse: 'L'
+            },
+            dayOfMonthOrdinalParse: /\d{1,2}(日|月|周)/,
+            ordinal: function (number, period) {
+                switch (period) {
+                    case 'd':
+                    case 'D':
+                    case 'DDD':
+                        return number + '日';
+                    case 'M':
+                        return number + '月';
+                    case 'w':
+                    case 'W':
+                        return number + '周';
+                    default:
+                        return number;
+                }
+            },
+            relativeTime: {
+                future: '%s内',
+                past: '%s前',
+                s: '几秒',
+                ss: '%d秒',
+                m: '1分钟',
+                mm: '%d分钟',
+                h: '1小时',
+                hh: '%d小时',
+                d: '1天',
+                dd: '%d天',
+                M: '1个月',
+                MM: '%d个月',
+                y: '1年',
+                yy: '%d年'
+            },
+            week: {
+                dow: 1,
+                doy: 4
+            }
+        })
+        //console.log(moment("2020-10-26").format("dddd"));
+        //获取今天，明天，后天
+        function getDay(i) {
+            switch (i){
+                case 0:
+                    return "今天"
+                    break;
+                case 1:
+                    return "明天"
+                    break;
+                default:
+                    return "后天"
+                    break;
+
+            }
+        }
+
+    })
+
+</script>
+
+</html>
